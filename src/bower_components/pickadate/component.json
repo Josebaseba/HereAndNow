@@ -1,0 +1,8 @@
+{
+  "name": "pickadate",
+  "version": "3.2.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/amsul/pickadate.js.git"
+  }
+}

@@ -1,0 +1,15 @@
+server:
+    host: localhost
+    port: 1337
+
+log:
+    request: true
+    response: true
+
+mongo:
+    - name    : primary
+      host    : ds029939.mongolab.com
+      port    : 29939
+      db      : chat
+      user    : josebaseba
+      password: chatpass

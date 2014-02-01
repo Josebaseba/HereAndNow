@@ -1,0 +1,23 @@
+{
+  "name"            : "hereandnow",
+  "version"         : "0.0.1",
+  "description"     : "Fast chat rooms",
+  "homepage"        : "http://josebaseba.com",
+  "author"          : "Joseba Legarreta <joseba@tapquo.com>",
+  "dependencies": {
+    "coffee-script" : "*",
+    "yoi"           : "*",
+    "socket.io"     : "*" },
+  "devDependencies": {
+    "grunt-contrib-coffee"  : "*",
+    "grunt-contrib-concat"  : "*",
+    "grunt-contrib-uglify"  : "*",
+    "grunt-contrib-stylus"  : "*",
+    "grunt-contrib-copy"    : "*",
+    "grunt-contrib-watch"   : "*"
+  },
+  "scripts"         : {
+    "start": "node yoi.js" ,
+    "test" : "node yoitest.js" },
+  "engines"         : { "node": "*"}
+}
