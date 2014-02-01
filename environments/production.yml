@@ -8,8 +8,8 @@ log:
 
 mongo:
     - name    : primary
-      host    : ds029939.mongolab.com
-      port    : 29939
-      db      : chat
-      user    : josebaseba
-      password: chatpass
+      host    : host
+      port    : port
+      db      : db
+      user    : user
+      password: pass
