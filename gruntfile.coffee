@@ -22,8 +22,7 @@ module.exports = (grunt) ->
           "src/monocle/views/*.coffee",
           "src/monocle/controllers/*.coffee"]
         stylus: [
-          "src/site/stylesheets/tuktuk.*.styl",
-          "src/site/stylesheets/app.*.styl"]
+          "src/stylesheets/tuktuk.*.styl"]
 
     components:
       site:
@@ -39,6 +38,8 @@ module.exports = (grunt) ->
           "src/bower_components/socket.io/socket.io.js"]
         css: [
           "src/bower_components/tuktuk/tuktuk.css",
+          "src/bower_components/tuktuk/tuktuk.theme.css",
+          "src/bower_components/tuktuk/tuktuk.icons.css",
           "src/bower_components/pickadate/lib/themes/classic.css",
           "src/bower_components/pickadate/lib/themes/classic.date.css"]
 
