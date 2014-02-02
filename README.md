@@ -1,4 +1,4 @@
-hereandnow
+HereAndNow
 ==========
 
 Fast chating rooms
