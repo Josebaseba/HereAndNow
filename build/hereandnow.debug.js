@@ -1,4 +1,14 @@
 (function() {
+  var HAN;
+
+  window.HAN = HAN = {
+    SOCKET_URL: "http://localhost:1337/socket",
+    EXAMPLE_ROOM: "example_room"
+  };
+
+}).call(this);
+
+(function() {
   var SocketCtrl,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -20,7 +30,7 @@
 
     SocketCtrl.prototype.initialize = function() {
       var event, _i, _len, _ref;
-      this.socket = io.connect("http://localhost:1337/socket");
+      this.socket = io.connect(HAN.SOCKET_URL);
       _ref = this.events;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         event = _ref[_i];

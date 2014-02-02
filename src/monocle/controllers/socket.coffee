@@ -6,7 +6,7 @@ class SocketCtrl extends Monocle.Controller
   ]
 
   initialize: ->
-    @socket = io.connect "http://localhost:1337/socket"
+    @socket = io.connect HAN.SOCKET_URL
     for event in @events
       @socket.on event, @["on#{event.charAt(0).toUpperCase() + event.slice(1)}"]
     do @join
