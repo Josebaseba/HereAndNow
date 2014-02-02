@@ -16,9 +16,9 @@ module.exports = (server) ->
           if error?
             @emit "error", error
           else if room?
-            _connectToRoom client, room_name, user
+            _connectToRoom @, room_name, user
           else
-            _createRoom client, room_name, user
+            _createRoom @, room_name, user
       else
         @emit "error", "No room name."
 

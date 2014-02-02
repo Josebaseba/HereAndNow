@@ -1,18 +1,35 @@
 class SocketCtrl extends Monocle.Controller
 
-  constructor: ->
-    super
+  events: [
+    "error", "joined", "message",
+    "disconnection", "connection"
+  ]
+
+  initialize: ->
     @socket = io.connect "http://localhost:1337/socket"
+    for event in @events
+      @socket.on event, @["on#{event.charAt(0).toUpperCase() + event.slice(1)}"]
+    do @join
 
-    @socket.on "error", (error) -> console.error error
-    @socket.on "joined", (messages, users) =>
-      console.log messages, users
-      @socket.emit "message", "HELLO WORLD!!! #{new Date()}", "Joseba"
-    @socket.on "message", (message) -> console.log message, "MESSAGE"
-    @socket.on "disconnection", (user) -> console.log user, "DISCONNECTED"
-    @socket.on "connection", (user) -> console.log user, "CONNECTED"
+  join: ->
+    if __Controller.Url.ROOM_NAME?
+      @socket.emit "join", __Controller.Url.ROOM_NAME, "Joseba"
 
-    @socket.emit "join", "Joseba-Group", "JOSEBA"
+  #EVENTS
+  onMessage: (message) =>
+    console.log message, "MESSAGE"
+
+  onError: (error) =>
+    console.error error, "ERROR"
+
+  onJoined: (messages, users) =>
+    console.log messages, users, "JOINED"
+
+  onDisconnection: (user) =>
+    console.log user, "DISCONNECTED"
+
+  onConnection: (user) =>
+    console.log user, "CONNECTED"
 
 $ ->
   __Controller.Socket = new SocketCtrl "body"
