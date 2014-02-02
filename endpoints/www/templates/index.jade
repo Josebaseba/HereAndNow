@@ -1,12 +1,78 @@
 extends /bases/layout
 
 block section
-  section.bck.darkest.landing.text.center.color.white
-    div.row.padding-bottom
-      div.column_10.offset_1
-        h2.thin.text.italic Here And Now
-        h5.text.book
-    div.row.margin-top
+
+  section.bck.darkest.landing.text.center.color.white.landing-margin
+    div.row
+      div.column_10.offset_1.margin-bottom
+        h2.thin.text.italic
+          | Here&nbsp;
+          span.theme.color.text &&nbsp;
+          | Now
+    div.row.margin-top.margin-bottom.create-room
+      div.column_10.offset_1.form
+        input#room-name.large(type="text",placeholder="Chat room name...")
+      div.column_6.offset_3.margin-bottom
+        button.large.margin-top.anchor Go!
+    div.row.margin-top.margin-bottom
       div.column_10.offset_1.form.margin-top
-        input.large.margin(type="text",placeholder="Chat room name...")
-        button.large.margin Go!
+        h5.text.book.margin-bottom You can create/join to chat rooms
+          | only with the room name. No registration needed, choose a name
+          | for your room and anyone can connect there.
+
+  section.bck.light.padding.text.center
+    .row.padding-bottom
+      .column_10.offset_1
+        h1.text.book.color.theme.margin-bottom What is Here And Now ?
+        h4
+          | H&N is a simple way to comunicate with people. Your create a room and people could connect to your chat in a very easy way.
+    .row.padding-top
+      .column_3
+        h2.icon.user
+        h5.text.normal No login required
+        small
+          | We only need a nickname! Connect to the chat and put your favourite nickname to start.
+      .column_3
+        h2.icon.group
+        h5.text.normal Share your room
+        small
+          | When you create a room you can share the url to the other users and they be there in a few seconds.
+      .column_3
+        h2.icon.bolt
+        h5.text.normal Fast, fast, fast!
+        small
+          | You create a room, you talk in there and when all people is gone the chat and its messages will be deleted.
+      .column_3
+        h2.icon.github
+        h5.text.normal Open source
+        small
+          | All the project is shared in github, you can use, replicate or whatever you want. Feel free!
+
+  //- section.padding.bck.color
+  //-   .row.margin-bottom
+  //-       .column_10.offset_1.text.center.book
+  //-         h1.color.theme Who has made this shit?
+  //-         h3
+  //-           a.text.normal(href="https://twitter.com/josebaseba", target="_blank") Joseba Legarreta
+  //-           | , Javascript developer. Working on&nbsp;
+  //-           a.text.normal(href="http://tapquo.com", target="_blank") Tapquo
+  //-           | . HTML5 and RealTime applications fan.&nbsp;
+  //-           a.text.normal(href="https://twitter.com/josebaseba", target="_blank") @Josebaseba
+  //-           | &nbsp;in the web.
+  //-     .row.margin-bottom
+  //-       .column_4.offset_4.text.center.white
+  //-         img.responsive.rounded.margin-bottom(src="https://0.gravatar.com/avatar/81822ca2880723a994b8f7fbf568ab0b?s=440")
+
+  footer.bck.dark.padding
+    .row.margin-top.margin-bottom.center.text
+      div.column_4
+        a(href="https://github.com/Josebaseba/HereAndNow", target="_blank")
+          h1.icon.github-alt.inline
+      div.column_4
+        a(href="https://twitter.com/josebaseba", target="_blank")
+          h1.icon.twitter.inline
+      div.column_4
+        a(href="https://github.com/Josebaseba/HereAndNow/archive/master.zip")
+          h1.icon.download.inline
+
+
