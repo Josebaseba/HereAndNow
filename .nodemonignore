@@ -2,3 +2,4 @@ src/*
 assets/*
 build/*
 .git/*
+endpoints/www/templates/*

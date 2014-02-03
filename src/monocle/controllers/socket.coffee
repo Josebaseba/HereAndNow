@@ -1,13 +1,13 @@
 class SocketCtrl extends Monocle.Controller
 
-  events: [
+  socket_events: [
     "error", "joined", "message",
     "disconnection", "connection"
   ]
 
   initialize: ->
     @socket = io.connect HAN.SOCKET_URL
-    for event in @events
+    for event in @socket_events
       @socket.on event, @["on#{event.charAt(0).toUpperCase() + event.slice(1)}"]
     do @join
 

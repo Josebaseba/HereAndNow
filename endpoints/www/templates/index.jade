@@ -11,9 +11,9 @@ block section
           | Now
     div.row.margin-top.margin-bottom.create-room
       div.column_10.offset_1.form
-        input#room-name.large(type="text",placeholder="Chat room name...")
+        input#room-name.large(type="text",placeholder="Chat room name...", maxlength="128")
       div.column_6.offset_3.margin-bottom
-        button.large.margin-top.anchor Go!
+        button#start.large.margin-top.anchor Go!
     div.row.margin-top.margin-bottom
       div.column_10.offset_1.form.margin-top
         h5.text.book.margin-bottom You can create/join to chat rooms
