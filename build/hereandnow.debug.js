@@ -31,9 +31,11 @@
     }
 
     ChatCtrl.prototype.sendMessage = function() {
-      console.log(this.message.val());
-      this.message.val("");
-      return this._resizeInput(false);
+      if (this.message.val().trim() !== "") {
+        __Controller.Socket.send(this.message.val().trim());
+        this.message.val("");
+        return this._resizeInput(false);
+      }
     };
 
     ChatCtrl.prototype.onKeyUp = function(event) {
@@ -135,6 +137,8 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   SocketCtrl = (function(_super) {
+    var USERNAME;
+
     __extends(SocketCtrl, _super);
 
     function SocketCtrl() {
@@ -145,6 +149,8 @@
       this.onMessage = __bind(this.onMessage, this);
       return SocketCtrl.__super__.constructor.apply(this, arguments);
     }
+
+    USERNAME = "JOSEBA";
 
     SocketCtrl.prototype.socket_events = ["error", "joined", "message", "disconnection", "connection"];
 
@@ -165,8 +171,12 @@
       }
     };
 
-    SocketCtrl.prototype.onMessage = function(message) {
-      return console.log(message, "MESSAGE");
+    SocketCtrl.prototype.send = function(message) {
+      return this.socket.emit("message", message, USERNAME);
+    };
+
+    SocketCtrl.prototype.onMessage = function(message, user) {
+      return console.log(message, ":: " + user + "'s MESSAGE");
     };
 
     SocketCtrl.prototype.onError = function(error) {

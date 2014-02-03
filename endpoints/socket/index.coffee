@@ -32,8 +32,10 @@ module.exports = (server) ->
 
     client.on "message", (message, user) ->
       if @room_name? and message? and user?
-        io.in(@room_name).emit "message", message
+        io.in(@room_name).emit "message", message, user
         _saveMessage @room_name, message, user
+      else
+        @emit "error", "message and user parameters required."
 
 # PRIVATE METHODS
 

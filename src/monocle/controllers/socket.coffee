@@ -1,5 +1,7 @@
 class SocketCtrl extends Monocle.Controller
 
+  USERNAME = "JOSEBA"
+
   socket_events: [
     "error", "joined", "message",
     "disconnection", "connection"
@@ -15,9 +17,12 @@ class SocketCtrl extends Monocle.Controller
     if __Controller.Url.ROOM_NAME?
       @socket.emit "join", __Controller.Url.ROOM_NAME, "Joseba"
 
+  send: (message) ->
+    @socket.emit "message", message, USERNAME
+
   #EVENTS
-  onMessage: (message) =>
-    console.log message, "MESSAGE"
+  onMessage: (message, user) =>
+    console.log message, ":: #{user}'s MESSAGE"
 
   onError: (error) =>
     console.error error, "ERROR"

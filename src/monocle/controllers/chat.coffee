@@ -12,9 +12,10 @@ class ChatCtrl extends Monocle.Controller
     @chat_name.text do @_roomName
 
   sendMessage: ->
-    console.log @message.val()
-    @message.val ""
-    @_resizeInput false
+    if @message.val().trim() isnt ""
+      __Controller.Socket.send @message.val().trim()
+      @message.val ""
+      @_resizeInput false
 
   #Events
   onKeyUp: (event) ->
