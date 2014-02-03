@@ -29,4 +29,4 @@ class MainCtrl extends Monocle.Controller
       null
 
 $ ->
-  __Controller.Main = new MainCtrl "body"
+  __Controller.Main = new MainCtrl "section[data-control=main]"

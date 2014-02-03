@@ -9,6 +9,68 @@
 }).call(this);
 
 (function() {
+  var ChatCtrl,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  ChatCtrl = (function(_super) {
+    __extends(ChatCtrl, _super);
+
+    ChatCtrl.prototype.elements = {
+      "header h2#chat-name": "chat_name",
+      "textarea#message": "message"
+    };
+
+    ChatCtrl.prototype.events = {
+      "keyup textarea#message": "onKeyUp"
+    };
+
+    function ChatCtrl() {
+      ChatCtrl.__super__.constructor.apply(this, arguments);
+      this.chat_name.text(this._roomName());
+    }
+
+    ChatCtrl.prototype.sendMessage = function() {
+      console.log(this.message.val());
+      this.message.val("");
+      return this._resizeInput(false);
+    };
+
+    ChatCtrl.prototype.onKeyUp = function(event) {
+      if (this.message.val().length > 60) {
+        this._resizeInput();
+      }
+      if (event.keyCode === 13) {
+        return this.sendMessage();
+      }
+    };
+
+    ChatCtrl.prototype._roomName = function() {
+      return location.pathname.slice(1).toLowerCase();
+    };
+
+    ChatCtrl.prototype._resizeInput = function(bigger) {
+      if (bigger == null) {
+        bigger = true;
+      }
+      if (bigger) {
+        return this.message.css("height", "100px");
+      } else {
+        return this.message.css("height", "54px");
+      }
+    };
+
+    return ChatCtrl;
+
+  })(Monocle.Controller);
+
+  $(function() {
+    return __Controller.Chat = new ChatCtrl("section[data-control=chat]");
+  });
+
+}).call(this);
+
+(function() {
   var MainCtrl,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -61,7 +123,7 @@
   })(Monocle.Controller);
 
   $(function() {
-    return __Controller.Main = new MainCtrl("body");
+    return __Controller.Main = new MainCtrl("section[data-control=main]");
   });
 
 }).call(this);

@@ -1,3 +1,12 @@
 extends /bases/layout
 block section
-  h2 Chat window!
+  section(data-control="chat")
+    header.bck.margin-bottom.light.color.padding-bottom
+      .row
+        .column_12
+          h2#chat-name.text.italic.thin.center
+    article.padding.scroll
+    footer.bck.margin-bottom.padding
+      .form.row.center.text
+        .column_8.offset_2
+          textarea#message.large(type="text",placeholder="Message...", maxlength="512")
