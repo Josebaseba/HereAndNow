@@ -8,5 +8,7 @@ block section
     article.padding.scroll
     footer.bck.margin-bottom.padding
       .form.row.center.text
+        .column_4.offset_4
+          input#username.large(type="text", placeholder="What's your name?", maxlength="20")
         .column_8.offset_2
-          textarea#message.large(type="text",placeholder="Message...", maxlength="512")
+          textarea#message.large(type="text", placeholder="Message...", maxlength="512", style="display: none")

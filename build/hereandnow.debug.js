@@ -1,10 +1,21 @@
 (function() {
   var HAN;
 
-  window.HAN = HAN = {
-    SOCKET_URL: "http://localhost:1337/socket",
-    EXAMPLE_ROOM: "example_room"
-  };
+  window.HAN = HAN = (function() {
+    var EXAMPLE_ROOM, SOCKET_URL, _parseName;
+    SOCKET_URL = "http://localhost:1337/socket";
+    EXAMPLE_ROOM = "example_room";
+    _parseName = function(room_name) {
+      var REG_EXP;
+      REG_EXP = /[^a-z0-9]/gi;
+      return room_name.replace(REG_EXP, "");
+    };
+    return {
+      SOCKET_URL: SOCKET_URL,
+      EXAMPLE_ROOM: EXAMPLE_ROOM,
+      parseName: _parseName
+    };
+  })();
 
 }).call(this);
 
@@ -18,11 +29,13 @@
 
     ChatCtrl.prototype.elements = {
       "header h2#chat-name": "chat_name",
-      "textarea#message": "message"
+      "textarea#message": "message",
+      "input#username": "username"
     };
 
     ChatCtrl.prototype.events = {
-      "keyup textarea#message": "onKeyUp"
+      "keyup textarea#message": "onKeyUpMessage",
+      "keyup input#username": "onKeyUpUsername"
     };
 
     function ChatCtrl() {
@@ -38,7 +51,7 @@
       }
     };
 
-    ChatCtrl.prototype.onKeyUp = function(event) {
+    ChatCtrl.prototype.onKeyUpMessage = function(event) {
       if (this.message.val().length > 60) {
         this._resizeInput();
       }
@@ -47,8 +60,24 @@
       }
     };
 
+    ChatCtrl.prototype.onKeyUpUsername = function(event) {
+      var username;
+      if (this.message.val().trim().length <= 20 && event.keyCode === 13) {
+        username = HAN.parseName(this.username.val().trim());
+        __Controller.Socket.USERNAME = username;
+        __Controller.Socket.join();
+        return this._prepareMessageInput();
+      }
+    };
+
     ChatCtrl.prototype._roomName = function() {
       return location.pathname.slice(1).toLowerCase();
+    };
+
+    ChatCtrl.prototype._prepareMessageInput = function() {
+      this.username.hide();
+      this.message.show();
+      return this.message.focus();
     };
 
     ChatCtrl.prototype._resizeInput = function(bigger) {
@@ -78,8 +107,6 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   MainCtrl = (function(_super) {
-    var _parseRoomName;
-
     __extends(MainCtrl, _super);
 
     MainCtrl.prototype.elements = {
@@ -98,8 +125,8 @@
 
     MainCtrl.prototype.onStart = function() {
       var room_name;
-      if (this.room_name.val().trim() !== "") {
-        room_name = _parseRoomName(this.room_name.val().trim());
+      if (this.room_name.val().trim() !== "" && this.room_name.length <= 128) {
+        room_name = HAN.parseName(this.room_name.val().trim().toLowerCase());
         return window.location.href = room_name;
       }
     };
@@ -107,16 +134,6 @@
     MainCtrl.prototype.onKeyUp = function(event) {
       if (event.keyCode === 13) {
         return this.onStart();
-      }
-    };
-
-    _parseRoomName = function(room_name) {
-      var REG_EXP;
-      if (room_name.length <= 128) {
-        REG_EXP = /[^a-z0-9]/gi;
-        return room_name.replace(REG_EXP, "").toLowerCase();
-      } else {
-        return null;
       }
     };
 
@@ -137,8 +154,6 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   SocketCtrl = (function(_super) {
-    var USERNAME;
-
     __extends(SocketCtrl, _super);
 
     function SocketCtrl() {
@@ -150,29 +165,32 @@
       return SocketCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    USERNAME = "JOSEBA";
+    SocketCtrl.prototype.USERNAME = null;
 
     SocketCtrl.prototype.socket_events = ["error", "joined", "message", "disconnection", "connection"];
 
     SocketCtrl.prototype.initialize = function() {
-      var event, _i, _len, _ref;
+      var event, _i, _len, _ref, _results;
       this.socket = io.connect(HAN.SOCKET_URL);
       _ref = this.socket_events;
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         event = _ref[_i];
-        this.socket.on(event, this["on" + (event.charAt(0).toUpperCase() + event.slice(1))]);
+        _results.push(this.socket.on(event, this["on" + (event.charAt(0).toUpperCase() + event.slice(1))]));
       }
-      return this.join();
+      return _results;
     };
 
     SocketCtrl.prototype.join = function() {
-      if (__Controller.Url.ROOM_NAME != null) {
-        return this.socket.emit("join", __Controller.Url.ROOM_NAME, "Joseba");
+      if ((__Controller.Url.ROOM_NAME != null) && this.USERNAME) {
+        return this.socket.emit("join", __Controller.Url.ROOM_NAME, this.USERNAME);
       }
     };
 
     SocketCtrl.prototype.send = function(message) {
-      return this.socket.emit("message", message, USERNAME);
+      if (this.USERNAME != null) {
+        return this.socket.emit("message", message, this.USERNAME);
+      }
     };
 
     SocketCtrl.prototype.onMessage = function(message, user) {

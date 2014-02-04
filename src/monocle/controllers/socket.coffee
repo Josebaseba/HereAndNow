@@ -1,6 +1,6 @@
 class SocketCtrl extends Monocle.Controller
 
-  USERNAME = "JOSEBA"
+  USERNAME: null
 
   socket_events: [
     "error", "joined", "message",
@@ -11,14 +11,13 @@ class SocketCtrl extends Monocle.Controller
     @socket = io.connect HAN.SOCKET_URL
     for event in @socket_events
       @socket.on event, @["on#{event.charAt(0).toUpperCase() + event.slice(1)}"]
-    do @join
 
   join: ->
-    if __Controller.Url.ROOM_NAME?
-      @socket.emit "join", __Controller.Url.ROOM_NAME, "Joseba"
+    if __Controller.Url.ROOM_NAME? and @USERNAME
+      @socket.emit "join", __Controller.Url.ROOM_NAME, @USERNAME
 
   send: (message) ->
-    @socket.emit "message", message, USERNAME
+    if @USERNAME? then @socket.emit "message", message, @USERNAME
 
   #EVENTS
   onMessage: (message, user) =>
