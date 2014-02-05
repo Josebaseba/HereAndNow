@@ -2,9 +2,10 @@
   var HAN;
 
   window.HAN = HAN = (function() {
-    var EXAMPLE_ROOM, SOCKET_URL, _parseName;
+    var DEFAULT_NAME, EXAMPLE_ROOM, SOCKET_URL, _parseName;
     SOCKET_URL = "http://localhost:1337/socket";
     EXAMPLE_ROOM = "example_room";
+    DEFAULT_NAME = "GUEST";
     _parseName = function(room_name) {
       var REG_EXP;
       REG_EXP = /[^a-z0-9]/gi;
@@ -13,6 +14,7 @@
     return {
       SOCKET_URL: SOCKET_URL,
       EXAMPLE_ROOM: EXAMPLE_ROOM,
+      DEFAULT_NAME: DEFAULT_NAME,
       parseName: _parseName
     };
   })();
@@ -62,11 +64,12 @@
 
     ChatCtrl.prototype.onKeyUpUsername = function(event) {
       var username;
-      if (this.message.val().trim().length <= 20 && event.keyCode === 13) {
+      if (event.keyCode === 13 && this.username.val().trim() !== "") {
         username = HAN.parseName(this.username.val().trim());
-        __Controller.Socket.USERNAME = username;
-        __Controller.Socket.join();
-        return this._prepareMessageInput();
+        if (username.length <= 25 && username !== HAN.DEFAULT_NAME) {
+          __Controller.Socket.setName(username);
+          return this._prepareMessageInput();
+        }
       }
     };
 
@@ -154,42 +157,49 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   SocketCtrl = (function(_super) {
+    var USERNAME;
+
     __extends(SocketCtrl, _super);
 
     function SocketCtrl() {
-      this.onConnection = __bind(this.onConnection, this);
-      this.onDisconnection = __bind(this.onDisconnection, this);
-      this.onJoined = __bind(this.onJoined, this);
+      this.onNewUserJoined = __bind(this.onNewUserJoined, this);
+      this.onUserConnection = __bind(this.onUserConnection, this);
+      this.onUserDisconnection = __bind(this.onUserDisconnection, this);
+      this.onConnectedToRoom = __bind(this.onConnectedToRoom, this);
       this.onError = __bind(this.onError, this);
       this.onMessage = __bind(this.onMessage, this);
       return SocketCtrl.__super__.constructor.apply(this, arguments);
     }
 
-    SocketCtrl.prototype.USERNAME = null;
+    USERNAME = null;
 
-    SocketCtrl.prototype.socket_events = ["error", "joined", "message", "disconnection", "connection"];
+    SocketCtrl.prototype.socket_events = ["error", "connectedToRoom", "message", "userDisconnection", "userConnection", "newUserJoined"];
 
     SocketCtrl.prototype.initialize = function() {
-      var event, _i, _len, _ref, _results;
+      var event, _i, _len, _ref;
       this.socket = io.connect(HAN.SOCKET_URL);
       _ref = this.socket_events;
-      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         event = _ref[_i];
-        _results.push(this.socket.on(event, this["on" + (event.charAt(0).toUpperCase() + event.slice(1))]));
+        this.socket.on(event, this["on" + (event.charAt(0).toUpperCase() + event.slice(1))]);
       }
-      return _results;
+      return this.connectToRoom();
     };
 
-    SocketCtrl.prototype.join = function() {
-      if ((__Controller.Url.ROOM_NAME != null) && this.USERNAME) {
-        return this.socket.emit("join", __Controller.Url.ROOM_NAME, this.USERNAME);
+    SocketCtrl.prototype.connectToRoom = function() {
+      if (__Controller.Url.ROOM_NAME) {
+        return this.socket.emit("connectToRoom", __Controller.Url.ROOM_NAME);
       }
+    };
+
+    SocketCtrl.prototype.setName = function(username) {
+      USERNAME = username;
+      return this.socket.emit("setName", USERNAME);
     };
 
     SocketCtrl.prototype.send = function(message) {
-      if (this.USERNAME != null) {
-        return this.socket.emit("message", message, this.USERNAME);
+      if (USERNAME != null) {
+        return this.socket.emit("message", message);
       }
     };
 
@@ -201,16 +211,20 @@
       return console.error(error, "ERROR");
     };
 
-    SocketCtrl.prototype.onJoined = function(messages, users) {
-      return console.log(messages, users, "JOINED");
+    SocketCtrl.prototype.onConnectedToRoom = function(messages, users) {
+      return console.log(messages, users, "CONNECTED");
     };
 
-    SocketCtrl.prototype.onDisconnection = function(user) {
+    SocketCtrl.prototype.onUserDisconnection = function(user) {
       return console.log(user, "DISCONNECTED");
     };
 
-    SocketCtrl.prototype.onConnection = function(user) {
+    SocketCtrl.prototype.onUserConnection = function(user) {
       return console.log(user, "CONNECTED");
+    };
+
+    SocketCtrl.prototype.onNewUserJoined = function(user) {
+      return console.log(user, "USERJOINED");
     };
 
     return SocketCtrl;

@@ -1,23 +1,29 @@
 class SocketCtrl extends Monocle.Controller
 
-  USERNAME: null
+  USERNAME = null
 
   socket_events: [
-    "error", "joined", "message",
-    "disconnection", "connection"
+    "error", "connectedToRoom", "message",
+    "userDisconnection", "userConnection",
+    "newUserJoined"
   ]
 
   initialize: ->
     @socket = io.connect HAN.SOCKET_URL
     for event in @socket_events
       @socket.on event, @["on#{event.charAt(0).toUpperCase() + event.slice(1)}"]
+    do @connectToRoom
 
-  join: ->
-    if __Controller.Url.ROOM_NAME? and @USERNAME
-      @socket.emit "join", __Controller.Url.ROOM_NAME, @USERNAME
+  connectToRoom: ->
+    if __Controller.Url.ROOM_NAME
+      @socket.emit "connectToRoom", __Controller.Url.ROOM_NAME
+
+  setName: (username) ->
+    USERNAME = username
+    @socket.emit "setName", USERNAME
 
   send: (message) ->
-    if @USERNAME? then @socket.emit "message", message, @USERNAME
+    if USERNAME? then @socket.emit "message", message
 
   #EVENTS
   onMessage: (message, user) =>
@@ -26,14 +32,17 @@ class SocketCtrl extends Monocle.Controller
   onError: (error) =>
     console.error error, "ERROR"
 
-  onJoined: (messages, users) =>
-    console.log messages, users, "JOINED"
+  onConnectedToRoom: (messages, users) =>
+    console.log messages, users, "CONNECTED"
 
-  onDisconnection: (user) =>
+  onUserDisconnection: (user) =>
     console.log user, "DISCONNECTED"
 
-  onConnection: (user) =>
+  onUserConnection: (user) =>
     console.log user, "CONNECTED"
+
+  onNewUserJoined: (user) =>
+    console.log user, "USERJOINED"
 
 $ ->
   __Controller.Socket = new SocketCtrl "body"

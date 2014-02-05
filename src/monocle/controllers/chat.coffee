@@ -25,11 +25,11 @@ class ChatCtrl extends Monocle.Controller
     if event.keyCode is 13 then do @sendMessage
 
   onKeyUpUsername: (event) ->
-    if @message.val().trim().length <= 20 and event.keyCode is 13
+    if event.keyCode is 13 and @username.val().trim() isnt ""
       username = HAN.parseName @username.val().trim()
-      __Controller.Socket.USERNAME = username
-      do __Controller.Socket.join
-      do @_prepareMessageInput
+      if username.length <= 25 and username isnt HAN.DEFAULT_NAME
+        __Controller.Socket.setName username
+        do @_prepareMessageInput
 
   #Private Methods
   _roomName: ->
