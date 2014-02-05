@@ -64,14 +64,14 @@ _connectToRoom = (client, room_name) ->
     _setConnection client, room_name
     client.emit "connectedToRoom", messages, _connections[room_name]
     client.broadcast.to(room_name).emit "userConnection", DEFAULT_NAME
-    _saveConnectionsByRoom room_name, DEFAULT_NAME
+    _saveConnectionInRoom room_name, DEFAULT_NAME
 
 _setConnection = (client, room_name) ->
   client.join room_name
   client.room_name = room_name
   client.user = DEFAULT_NAME
 
-_saveConnectionsByRoom = (room_name, user) ->
+_saveConnectionInRoom = (room_name, user) ->
   if not _connections[room_name]?
     _connections[room_name] = []
   _connections[room_name].push user
