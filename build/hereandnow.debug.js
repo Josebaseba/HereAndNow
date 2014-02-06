@@ -2,10 +2,11 @@
   var HAN;
 
   window.HAN = HAN = (function() {
-    var DEFAULT_NAME, EXAMPLE_ROOM, SOCKET_URL, _parseName;
+    var COLORS, DEFAULT_COLOR, DEFAULT_NAME, SOCKET_URL, _parseName;
     SOCKET_URL = "http://localhost:1337/socket";
-    EXAMPLE_ROOM = "example_room";
     DEFAULT_NAME = "GUEST";
+    COLORS = ["#F78181", "#FA8258", "#FA5882", "#F6CED8", "#F6CEF5", "#D8CEF6", "#A9F5E1", "#A5DF00", "#D0FA58"];
+    DEFAULT_COLOR = "#81DAF5";
     _parseName = function(room_name) {
       var REG_EXP;
       REG_EXP = /[^a-z0-9]/gi;
@@ -13,11 +14,72 @@
     };
     return {
       SOCKET_URL: SOCKET_URL,
-      EXAMPLE_ROOM: EXAMPLE_ROOM,
+      DEFAULT_COLOR: DEFAULT_COLOR,
       DEFAULT_NAME: DEFAULT_NAME,
+      COLORS: COLORS,
       parseName: _parseName
     };
   })();
+
+}).call(this);
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __Model.Message = (function(_super) {
+    __extends(Message, _super);
+
+    function Message() {
+      return Message.__super__.constructor.apply(this, arguments);
+    }
+
+    Message.fields("owner", "content");
+
+    return Message;
+
+  })(Monocle.Model);
+
+}).call(this);
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __Model.User = (function(_super) {
+    __extends(User, _super);
+
+    function User() {
+      return User.__super__.constructor.apply(this, arguments);
+    }
+
+    User.fields("name", "color");
+
+    return User;
+
+  })(Monocle.Model);
+
+}).call(this);
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __View.Message = (function(_super) {
+    __extends(Message, _super);
+
+    Message.prototype.container = "article#message-list ul";
+
+    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{content}}\n</li>";
+
+    function Message() {
+      Message.__super__.constructor.apply(this, arguments);
+      this.append(this.model);
+    }
+
+    return Message;
+
+  })(Monocle.View);
 
 }).call(this);
 
@@ -157,7 +219,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   SocketCtrl = (function(_super) {
-    var USERNAME;
+    var USERNAME, _randomColor;
 
     __extends(SocketCtrl, _super);
 
@@ -203,8 +265,10 @@
       }
     };
 
-    SocketCtrl.prototype.onMessage = function(message, user) {
-      return console.log(message, ":: " + user + "'s MESSAGE");
+    SocketCtrl.prototype.onMessage = function(message) {
+      if (message != null) {
+        return this._createMessageModel(message);
+      }
     };
 
     SocketCtrl.prototype.onError = function(error) {
@@ -212,19 +276,74 @@
     };
 
     SocketCtrl.prototype.onConnectedToRoom = function(messages, users) {
-      return console.log(messages, users, "CONNECTED");
+      var message, user, _i, _j, _len, _len1, _results;
+      if (users != null) {
+        for (_i = 0, _len = users.length; _i < _len; _i++) {
+          user = users[_i];
+          this._createUserModel(user);
+        }
+      }
+      if (messages != null) {
+        _results = [];
+        for (_j = 0, _len1 = messages.length; _j < _len1; _j++) {
+          message = messages[_j];
+          _results.push(this._createMessageModel(message));
+        }
+        return _results;
+      }
     };
 
     SocketCtrl.prototype.onUserDisconnection = function(user) {
-      return console.log(user, "DISCONNECTED");
+      var user_model;
+      console.log(user, "DISCONNECTED");
+      user_model = __Model.User.findBy("name", user);
+      if (user_model != null) {
+        return user_model.destroy();
+      }
     };
 
     SocketCtrl.prototype.onUserConnection = function(user) {
+      this._createUserModel(user);
       return console.log(user, "CONNECTED");
     };
 
     SocketCtrl.prototype.onNewUserJoined = function(user) {
+      var user_model;
+      user_model = __Model.User.findBy("name", HAN.DEFAULT_NAME);
+      if (user_model != null) {
+        user_model.destroy();
+      }
+      this._createUserModel(user);
       return console.log(user, "USERJOINED");
+    };
+
+    SocketCtrl.prototype._createUserModel = function(username) {
+      var user;
+      user = {
+        name: username,
+        color: _randomColor()
+      };
+      return __Model.User.create(user);
+    };
+
+    SocketCtrl.prototype._createMessageModel = function(message) {
+      var owner;
+      owner = __Model.User.findBy("name", message.owner);
+      if (owner != null) {
+        message.owner = owner;
+      } else {
+        message.owner = {
+          name: message.owner,
+          color: HAN.DEFAULT_COLOR
+        };
+      }
+      return new __View.Message({
+        model: __Model.Message.create(message)
+      });
+    };
+
+    _randomColor = function() {
+      return HAN.COLORS[Math.floor(Math.random() * HAN.COLORS.length)];
     };
 
     return SocketCtrl;

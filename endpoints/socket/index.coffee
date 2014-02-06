@@ -34,7 +34,7 @@ module.exports = (server) ->
 
     client.on "message", (message) ->
       if @room_name? and @user and message?
-        io.in(@room_name).emit "message", message, @user
+        io.in(@room_name).emit "message", content: message, owner: @user
         _saveMessage @room_name, message, @user
       else
         @emit "error", "Not enougth parameters."

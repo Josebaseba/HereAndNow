@@ -26,23 +26,47 @@ class SocketCtrl extends Monocle.Controller
     if USERNAME? then @socket.emit "message", message
 
   #EVENTS
-  onMessage: (message, user) =>
-    console.log message, ":: #{user}'s MESSAGE"
+  onMessage: (message) =>
+    if message?
+      @_createMessageModel message
 
   onError: (error) =>
     console.error error, "ERROR"
 
   onConnectedToRoom: (messages, users) =>
-    console.log messages, users, "CONNECTED"
+    if users? then @_createUserModel user for user in users
+    if messages? then @_createMessageModel message for message in messages
 
   onUserDisconnection: (user) =>
     console.log user, "DISCONNECTED"
+    user_model = __Model.User.findBy "name", user
+    if user_model? then do user_model.destroy
 
   onUserConnection: (user) =>
+    @_createUserModel user
     console.log user, "CONNECTED"
 
   onNewUserJoined: (user) =>
+    user_model = __Model.User.findBy "name", HAN.DEFAULT_NAME
+    if user_model? then do user_model.destroy
+    @_createUserModel user
     console.log user, "USERJOINED"
+
+  #PRIVATE METHODS
+  _createUserModel: (username) ->
+    user = name: username, color: _randomColor()
+    __Model.User.create user
+
+  _createMessageModel: (message) ->
+    owner = __Model.User.findBy "name", message.owner
+    if owner?
+      message.owner = owner
+    else
+      message.owner = name: message.owner, color: HAN.DEFAULT_COLOR
+    new __View.Message model: __Model.Message.create message
+
+  _randomColor = ->
+    HAN.COLORS[Math.floor(Math.random() * HAN.COLORS.length)]
 
 $ ->
   __Controller.Socket = new SocketCtrl "body"
