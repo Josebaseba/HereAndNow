@@ -1,8 +1,11 @@
-[data-control=chat]{position:fixed;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.2);}
-[data-control=chat] article#message-list div > ul > li{list-style:none}
+[data-control=chat]{top:0;bottom:0;height:100%;}
+[data-control=chat] > header{width:100%;position:fixed}
+[data-control=chat] > article#message-list div{height:80%;padding-top:1em;padding-bottom:4em;}
+[data-control=chat] > article#message-list div > ul > li{list-style:none}
 [data-control=chat] textarea{height:54px;resize:none}
-[data-control=chat] footer{position:fixed;bottom:0;z-index:10;width:100%}
+[data-control=chat] footer{background-color:#d8d8d8;position:fixed;bottom:0;z-index:10;width:100%;padding-bottom:2em}
 
+body{background-color:#d8d8d8}
 section.landing-margin{padding-top:2em !important;padding-bottom:2em !important}
 input#room-name{text-align:center}
 div.create-room{margin-top:3em;margin-bottom:3em}

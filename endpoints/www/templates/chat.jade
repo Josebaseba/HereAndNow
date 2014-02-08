@@ -1,15 +1,15 @@
 extends /bases/layout
 block section
   section(data-control="chat")
-    header.bck.margin-bottom.light.color.padding-bottom
+    header.bck.light.color
       .row
         .column_12
           h2#chat-name.text.italic.thin.center
-    article#message-list.padding.scroll
+    article#message-list.padding-top
       .row
         .column_8.offset_2
-          ul
-    footer.bck.margin-bottom.padding
+          ul.scroll.margin-top
+    footer.bck.padding
       .form.row.center.text
         .column_4.offset_4
           input#username.large(type="text", placeholder="What's your name?", maxlength="25", autocomplete="off")

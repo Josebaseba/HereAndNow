@@ -66,16 +66,29 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __View.Message = (function(_super) {
+    var prev_model;
+
     __extends(Message, _super);
+
+    prev_model = null;
 
     Message.prototype.container = "article#message-list ul";
 
-    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{content}}\n</li>";
+    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{^same_user}}\n  <strong class=\"text big normal block\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{content}}</span>\n</li>";
 
     function Message() {
       Message.__super__.constructor.apply(this, arguments);
+      this._parseModel();
       this.append(this.model);
     }
+
+    Message.prototype._parseModel = function() {
+      if ((prev_model != null) && this.model.owner.name === prev_model.owner.name) {
+        return this.model.same_user = true;
+      } else {
+        return prev_model = this.model;
+      }
+    };
 
     return Message;
 
@@ -267,7 +280,10 @@
 
     SocketCtrl.prototype.onMessage = function(message) {
       if (message != null) {
-        return this._createMessageModel(message);
+        this._createMessageModel(message);
+        return $("html, body").animate({
+          scrollTop: $(document).height()
+        });
       }
     };
 
@@ -276,7 +292,7 @@
     };
 
     SocketCtrl.prototype.onConnectedToRoom = function(messages, users) {
-      var message, user, _i, _j, _len, _len1, _results;
+      var message, user, _i, _j, _len, _len1;
       if (users != null) {
         for (_i = 0, _len = users.length; _i < _len; _i++) {
           user = users[_i];
@@ -284,13 +300,14 @@
         }
       }
       if (messages != null) {
-        _results = [];
         for (_j = 0, _len1 = messages.length; _j < _len1; _j++) {
           message = messages[_j];
-          _results.push(this._createMessageModel(message));
+          this._createMessageModel(message);
         }
-        return _results;
       }
+      return $("html, body").animate({
+        scrollTop: $(document).height()
+      }, 1000);
     };
 
     SocketCtrl.prototype.onUserDisconnection = function(user) {

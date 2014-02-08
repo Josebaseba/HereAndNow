@@ -1,13 +1,17 @@
 [data-control=chat]
-  position: fixed
-  left: 0
   top: 0
-  width: 100%
+  bottom: 0
   height: 100%
-  background-color: rgba(0,0,0,.2)
 
-  article#message-list
+  & > header
+    width: 100%
+    position: fixed
+
+  & > article#message-list
     & div
+      height: 80%
+      padding-top: 1em
+      padding-bottom: 4em
       & > ul
         & > li
           list-style: none
@@ -17,7 +21,9 @@
     resize: none
 
   & footer
+    background-color: #D8D8D8
     position: fixed
     bottom: 0
     z-index: 10
     width: 100%
+    padding-bottom: 2em

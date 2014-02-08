@@ -29,6 +29,7 @@ class SocketCtrl extends Monocle.Controller
   onMessage: (message) =>
     if message?
       @_createMessageModel message
+      $("html, body").animate scrollTop: $(document).height()
 
   onError: (error) =>
     console.error error, "ERROR"
@@ -36,6 +37,7 @@ class SocketCtrl extends Monocle.Controller
   onConnectedToRoom: (messages, users) =>
     if users? then @_createUserModel user for user in users
     if messages? then @_createMessageModel message for message in messages
+    $("html, body").animate scrollTop: $(document).height(), 1000
 
   onUserDisconnection: (user) =>
     console.log user, "DISCONNECTED"
