@@ -1,23 +1,57 @@
 (function() {
-  var HAN;
+  var HAN,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   window.HAN = HAN = (function() {
-    var COLORS, DEFAULT_COLOR, DEFAULT_NAME, SOCKET_URL, _parseName;
+    var COLORS, DEFAULT_COLOR, DEFAULT_NAME, IMG, REG_EXP, SOCKET_URL, _parseMessages, _parseName;
     SOCKET_URL = "http://localhost:1337/socket";
     DEFAULT_NAME = "GUEST";
     COLORS = ["#F78181", "#FA8258", "#FA5882", "#F6CED8", "#F6CEF5", "#D8CEF6", "#A9F5E1", "#A5DF00", "#D0FA58"];
+    IMG = {
+      SIZE: {
+        WIDTH: 500,
+        HEIGHT: 400
+      },
+      EXTENSIONS: ["jpg", "jpeg", "bmp", "png", "gif"]
+    };
+    REG_EXP = {
+      LINK: /([^"']|^)(ftp|http|https):\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/gi,
+      NAME: /[^a-z0-9]/gi
+    };
     DEFAULT_COLOR = "#81DAF5";
     _parseName = function(room_name) {
-      var REG_EXP;
-      REG_EXP = /[^a-z0-9]/gi;
-      return room_name.replace(REG_EXP, "");
+      return room_name.replace(REG_EXP.NAME, "");
+    };
+    _parseMessages = function(text) {
+      text = text.replace(REG_EXP.LINK, function(url) {
+        var extension, id, idExpregYouTube, vimeoExpreg, youtubeExpreg, _ref;
+        url = url.trim().replace(/\s/g, '');
+        youtubeExpreg = /([^"']|^)(http|https):\/\/(www\.youtube\.com\/|youtu\.be\/)[\w=&\?]+/gi;
+        vimeoExpreg = /([^"']|^)(http|https):\/\/(www\.vimeo\.com\/|vimeo\.com\/)[\w=&\?]+/gi;
+        if (youtubeExpreg.test(url)) {
+          idExpregYouTube = /^.*(youtu.be\/|v\/|embed\/|watch\?|youtube.com\/user\/[^#]*#([^\/]*?\/)*)\??v?=?([^#\&\?]*).*/;
+          id = url.match(idExpregYouTube);
+          return "<iframe width=\"" + IMG.SIZE.WIDTH + "\" height=\"" + IMG.SIZE.HEIGHT + "\" src=\"//www.youtube.com/embed/" + id[3] + "\" frameborder=\"0\" allowfullscreen></iframe>";
+        } else if (vimeoExpreg.test(url)) {
+          return "<iframe src=\"//player.vimeo.com/video/" + (url.split("/")[3]) + "\" width=\"" + IMG.SIZE.WIDTH + "\" height=\"" + IMG.SIZE.HEIGHT + "\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+        } else {
+          extension = url.split(".").pop();
+          if (_ref = extension.toString(), __indexOf.call(IMG.EXTENSIONS, _ref) >= 0) {
+            return "<img src=\"" + url + "\" width=\"" + IMG.SIZE.WIDTH + "\" height=\"" + IMG.SIZE.HEIGHT + "\">";
+          } else {
+            return " <a href=\"" + (url.replace(/\s/g, '')) + "\" target=\"_blank\">" + url + "</a> ";
+          }
+        }
+      });
+      return text;
     };
     return {
       SOCKET_URL: SOCKET_URL,
       DEFAULT_COLOR: DEFAULT_COLOR,
       DEFAULT_NAME: DEFAULT_NAME,
       COLORS: COLORS,
-      parseName: _parseName
+      parseName: _parseName,
+      parseMessages: _parseMessages
     };
   })();
 
@@ -74,11 +108,12 @@
 
     Message.prototype.container = "article#message-list ul";
 
-    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{^same_user}}\n  <strong class=\"text big normal block\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{content}}</span>\n</li>";
+    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{^same_user}}\n  <strong class=\"text big normal block\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{{content}}}</span>\n</li>";
 
     function Message() {
       Message.__super__.constructor.apply(this, arguments);
       this._parseModel();
+      this._parseContent();
       this.append(this.model);
     }
 
@@ -88,6 +123,10 @@
       } else {
         return prev_model = this.model;
       }
+    };
+
+    Message.prototype._parseContent = function() {
+      return this.model.content = HAN.parseMessages(this.model.content);
     };
 
     return Message;

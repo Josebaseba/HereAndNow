@@ -9,13 +9,14 @@ class __View.Message extends Monocle.View
       {{^same_user}}
       <strong class="text big normal block">{{owner.name}}</strong>
       {{/same_user}}
-      <span class="text book">{{content}}</span>
+      <span class="text book">{{{content}}}</span>
     </li>
     """
 
   constructor: ->
     super
     do @_parseModel
+    do @_parseContent
     @append @model
 
   _parseModel: ->
@@ -23,3 +24,6 @@ class __View.Message extends Monocle.View
       @model.same_user = true
     else
       prev_model = @model
+
+  _parseContent: ->
+    @model.content = HAN.parseMessages @model.content
