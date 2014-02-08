@@ -1,0 +1,15 @@
+server:
+    host: localhost
+    port: 1337
+
+log:
+    request: true
+    response: true
+
+mongo:
+    - name    : primary
+      host    : localhost
+      port    : 27017
+      db      : chat
+      user    : null
+      password: null
