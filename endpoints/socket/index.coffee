@@ -41,9 +41,13 @@ module.exports = (server) ->
 
     client.on "setName", (user) ->
       if user? and user isnt DEFAULT_NAME
-        @user = user
-        _updateUsernameInRoom @room_name, user
-        io.in(@room_name).emit "newUserJoined", user
+        if _isValidUsername user, @room_name
+          @user = user
+          _updateUsernameInRoom @room_name, user
+          io.in(@room_name).emit "newUserJoined", user
+          client.emit "nameChanged", user
+        else
+          client.emit "error", "No valid username"
 
 
 # PRIVATE METHODS
@@ -99,3 +103,10 @@ _deleteConnection = (room_name, user) ->
   if _connections[room_name]?.length isnt 0 and _connections[room_name].indexOf(user) isnt -1
     _connections[room_name].splice _connections[room_name].indexOf(user), 1
     if _connections[room_name]?.length is 0 then _connections[room_name] = null
+
+_isValidUsername = (user, room_name) ->
+  if _connections[room_name]?
+    if user in _connections[room_name] then false else true
+  else
+    _connections[room_name] = []
+    true

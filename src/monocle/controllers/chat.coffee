@@ -1,17 +1,18 @@
 class ChatCtrl extends Monocle.Controller
 
   elements:
-    "header h2#chat-name"    : "chat_name"
-    "textarea#message"       : "message"
-    "input#username"         : "username"
+    "header h2#chat-name"      : "chat_name"
+    "textarea#message"         : "message"
+    "input#username"           : "username"
 
   events:
-    "keyup textarea#message" : "onKeyUpMessage"
-    "keyup input#username"   : "onKeyUpUsername"
+    "keydown textarea#message" : "onKeyUpMessage"
+    "keydown input#username"   : "onKeyUpUsername"
 
   constructor: ->
     super
     @chat_name.text do @_roomName
+    @prepareMessageInput = @_prepareMessageInput
 
   sendMessage: ->
     if @message.val().trim() isnt ""
@@ -25,15 +26,18 @@ class ChatCtrl extends Monocle.Controller
     if event.keyCode is 13 then do @sendMessage
 
   onKeyUpUsername: (event) ->
-    if event.keyCode is 13 and @username.val().trim() isnt ""
+    if event.keyCode is 13
       username = HAN.parseName @username.val().trim()
-      if username.length <= 25 and username isnt HAN.DEFAULT_NAME
+      if username isnt "" and username.length <= 25 and username isnt HAN.DEFAULT_NAME and @_isValidUsername username
         __Controller.Socket.setName username
-        do @_prepareMessageInput
 
   #Private Methods
   _roomName: ->
     location.pathname.slice(1).toLowerCase()
+
+  _isValidUsername: (name) ->
+    user = __Model.User.findBy "name", name
+    unless user? then true else false
 
   _prepareMessageInput: ->
     do @username.hide

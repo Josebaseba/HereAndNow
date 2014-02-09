@@ -100,15 +100,15 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   __View.Message = (function(_super) {
-    var prev_model;
+    var prev_model_owner;
 
     __extends(Message, _super);
 
-    prev_model = null;
+    prev_model_owner = null;
 
     Message.prototype.container = "article#message-list ul";
 
-    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\" class=\"padding\">\n  {{^same_user}}\n  <strong class=\"text big normal block\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{{content}}}</span>\n</li>";
+    Message.prototype.template = "<li style=\"background-color: {{owner.color}}\"\n  class=\"{{^same_user}}padding{{/same_user}}{{#same_user}}padding-bottom padding-left{{/same_user}}\">\n  {{^same_user}}\n  <strong class=\"text big normal block padding-bottom\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{{content}}}</span>\n</li>";
 
     function Message() {
       Message.__super__.constructor.apply(this, arguments);
@@ -118,10 +118,10 @@
     }
 
     Message.prototype._parseModel = function() {
-      if ((prev_model != null) && this.model.owner.name === prev_model.owner.name) {
+      if ((prev_model_owner != null) && this.model.owner.name === prev_model_owner) {
         return this.model.same_user = true;
       } else {
-        return prev_model = this.model;
+        return prev_model_owner = this.model.owner.name;
       }
     };
 
@@ -150,13 +150,14 @@
     };
 
     ChatCtrl.prototype.events = {
-      "keyup textarea#message": "onKeyUpMessage",
-      "keyup input#username": "onKeyUpUsername"
+      "keydown textarea#message": "onKeyUpMessage",
+      "keydown input#username": "onKeyUpUsername"
     };
 
     function ChatCtrl() {
       ChatCtrl.__super__.constructor.apply(this, arguments);
       this.chat_name.text(this._roomName());
+      this.prepareMessageInput = this._prepareMessageInput;
     }
 
     ChatCtrl.prototype.sendMessage = function() {
@@ -178,17 +179,26 @@
 
     ChatCtrl.prototype.onKeyUpUsername = function(event) {
       var username;
-      if (event.keyCode === 13 && this.username.val().trim() !== "") {
+      if (event.keyCode === 13) {
         username = HAN.parseName(this.username.val().trim());
-        if (username.length <= 25 && username !== HAN.DEFAULT_NAME) {
-          __Controller.Socket.setName(username);
-          return this._prepareMessageInput();
+        if (username !== "" && username.length <= 25 && username !== HAN.DEFAULT_NAME && this._isValidUsername(username)) {
+          return __Controller.Socket.setName(username);
         }
       }
     };
 
     ChatCtrl.prototype._roomName = function() {
       return location.pathname.slice(1).toLowerCase();
+    };
+
+    ChatCtrl.prototype._isValidUsername = function(name) {
+      var user;
+      user = __Model.User.findBy("name", name);
+      if (user == null) {
+        return true;
+      } else {
+        return false;
+      }
     };
 
     ChatCtrl.prototype._prepareMessageInput = function() {
@@ -287,7 +297,7 @@
 
     USERNAME = null;
 
-    SocketCtrl.prototype.socket_events = ["error", "connectedToRoom", "message", "userDisconnection", "userConnection", "newUserJoined"];
+    SocketCtrl.prototype.socket_events = ["error", "connectedToRoom", "message", "userDisconnection", "userConnection", "newUserJoined", "nameChanged"];
 
     SocketCtrl.prototype.initialize = function() {
       var event, _i, _len, _ref;
@@ -347,6 +357,10 @@
       return $("html, body").animate({
         scrollTop: $(document).height()
       }, 1000);
+    };
+
+    SocketCtrl.prototype.onNameChanged = function(username) {
+      return __Controller.Chat.prepareMessageInput();
     };
 
     SocketCtrl.prototype.onUserDisconnection = function(user) {

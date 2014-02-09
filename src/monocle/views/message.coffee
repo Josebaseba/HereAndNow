@@ -1,13 +1,14 @@
 class __View.Message extends Monocle.View
 
-  prev_model = null
+  prev_model_owner = null
 
   container: "article#message-list ul"
 
   template: """
-    <li style="background-color: {{owner.color}}" class="padding">
+    <li style="background-color: {{owner.color}}"
+      class="{{^same_user}}padding{{/same_user}}{{#same_user}}padding-bottom padding-left{{/same_user}}">
       {{^same_user}}
-      <strong class="text big normal block">{{owner.name}}</strong>
+      <strong class="text big normal block padding-bottom">{{owner.name}}</strong>
       {{/same_user}}
       <span class="text book">{{{content}}}</span>
     </li>
@@ -20,10 +21,10 @@ class __View.Message extends Monocle.View
     @append @model
 
   _parseModel: ->
-    if prev_model? and @model.owner.name is prev_model.owner.name
+    if prev_model_owner? and @model.owner.name is prev_model_owner
       @model.same_user = true
     else
-      prev_model = @model
+      prev_model_owner = @model.owner.name
 
   _parseContent: ->
     @model.content = HAN.parseMessages @model.content

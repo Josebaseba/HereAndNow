@@ -5,7 +5,7 @@ class SocketCtrl extends Monocle.Controller
   socket_events: [
     "error", "connectedToRoom", "message",
     "userDisconnection", "userConnection",
-    "newUserJoined"
+    "newUserJoined", "nameChanged"
   ]
 
   initialize: ->
@@ -38,6 +38,9 @@ class SocketCtrl extends Monocle.Controller
     if users? then @_createUserModel user for user in users
     if messages? then @_createMessageModel message for message in messages
     $("html, body").animate scrollTop: $(document).height(), 1000
+
+  onNameChanged: (username) ->
+    do __Controller.Chat.prepareMessageInput
 
   onUserDisconnection: (user) =>
     console.log user, "DISCONNECTED"
