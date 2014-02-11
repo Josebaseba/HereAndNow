@@ -106,7 +106,7 @@
 
     prev_model_owner = null;
 
-    Message.prototype.container = "article#message-list ul";
+    Message.prototype.container = "article ul#message-list";
 
     Message.prototype.template = "<li style=\"background-color: {{owner.color}}\"\n  class=\"{{^same_user}}padding{{/same_user}}{{#same_user}}padding-bottom padding-left{{/same_user}}\">\n  {{^same_user}}\n  <strong class=\"text big normal block padding-bottom\">{{owner.name}}</strong>\n  {{/same_user}}\n  <span class=\"text book\">{{{content}}}</span>\n</li>";
 
@@ -130,6 +130,37 @@
     };
 
     return Message;
+
+  })(Monocle.View);
+
+}).call(this);
+
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  __View.User = (function(_super) {
+    __extends(User, _super);
+
+    User.prototype.container = "article ul#user-list";
+
+    User.prototype.template = "<li style=\"background-color:{{color}}\">{{name}}</li>";
+
+    function User() {
+      this.onDestroy = __bind(this.onDestroy, this);
+      User.__super__.constructor.apply(this, arguments);
+      this.append(this.model);
+      __Model.User.bind("destroy", this.onDestroy);
+    }
+
+    User.prototype.onDestroy = function(user) {
+      if (user.uid === this.model.uid) {
+        return this.el.remove();
+      }
+    };
+
+    return User;
 
   })(Monocle.View);
 
@@ -342,6 +373,7 @@
 
     SocketCtrl.prototype.onConnectedToRoom = function(messages, users) {
       var message, user, _i, _j, _len, _len1;
+      this._createUserModel(HAN.DEFAULT_NAME);
       if (users != null) {
         for (_i = 0, _len = users.length; _i < _len; _i++) {
           user = users[_i];
@@ -393,7 +425,9 @@
         name: username,
         color: _randomColor()
       };
-      return __Model.User.create(user);
+      return new __View.User({
+        model: __Model.User.create(user)
+      });
     };
 
     SocketCtrl.prototype._createMessageModel = function(message) {

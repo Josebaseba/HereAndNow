@@ -2,7 +2,7 @@ class __View.Message extends Monocle.View
 
   prev_model_owner = null
 
-  container: "article#message-list ul"
+  container: "article ul#message-list"
 
   template: """
     <li style="background-color: {{owner.color}}"

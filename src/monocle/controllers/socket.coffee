@@ -35,6 +35,7 @@ class SocketCtrl extends Monocle.Controller
     console.error error, "ERROR"
 
   onConnectedToRoom: (messages, users) =>
+    @_createUserModel HAN.DEFAULT_NAME
     if users? then @_createUserModel user for user in users
     if messages? then @_createMessageModel message for message in messages
     $("html, body").animate scrollTop: $(document).height(), 1000
@@ -60,7 +61,7 @@ class SocketCtrl extends Monocle.Controller
   #PRIVATE METHODS
   _createUserModel: (username) ->
     user = name: username, color: _randomColor()
-    __Model.User.create user
+    new __View.User model: __Model.User.create user
 
   _createMessageModel: (message) ->
     owner = __Model.User.findBy "name", message.owner
