@@ -44,19 +44,17 @@ class SocketCtrl extends Monocle.Controller
     do __Controller.Chat.prepareMessageInput
 
   onUserDisconnection: (user) =>
-    console.log user, "DISCONNECTED"
     user_model = __Model.User.findBy "name", user
     if user_model? then do user_model.destroy
 
   onUserConnection: (user) =>
     @_createUserModel user
-    console.log user, "CONNECTED"
 
   onNewUserJoined: (user) =>
     user_model = __Model.User.findBy "name", HAN.DEFAULT_NAME
+    console.log user_model
     if user_model? then do user_model.destroy
     @_createUserModel user
-    console.log user, "USERJOINED"
 
   #PRIVATE METHODS
   _createUserModel: (username) ->

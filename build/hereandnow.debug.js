@@ -150,13 +150,27 @@
     function User() {
       this.onDestroy = __bind(this.onDestroy, this);
       User.__super__.constructor.apply(this, arguments);
-      this.append(this.model);
+      if (this.model.name !== HAN.DEFAULT_NAME) {
+        this.append(this.model);
+      }
+      this._addToUsersCount();
       __Model.User.bind("destroy", this.onDestroy);
     }
 
     User.prototype.onDestroy = function(user) {
       if (user.uid === this.model.uid) {
-        return this.el.remove();
+        this.el.remove();
+        return this._removeFromUsersCount();
+      }
+    };
+
+    User.prototype._addToUsersCount = function() {
+      return $("span#user-count").html(parseInt($("span#user-count").html()) + 1);
+    };
+
+    User.prototype._removeFromUsersCount = function() {
+      if (0 < parseInt($("span#user-count").html())) {
+        return $("span#user-count").html(parseInt($("span#user-count").html()) - 1);
       }
     };
 
@@ -397,7 +411,6 @@
 
     SocketCtrl.prototype.onUserDisconnection = function(user) {
       var user_model;
-      console.log(user, "DISCONNECTED");
       user_model = __Model.User.findBy("name", user);
       if (user_model != null) {
         return user_model.destroy();
@@ -405,18 +418,17 @@
     };
 
     SocketCtrl.prototype.onUserConnection = function(user) {
-      this._createUserModel(user);
-      return console.log(user, "CONNECTED");
+      return this._createUserModel(user);
     };
 
     SocketCtrl.prototype.onNewUserJoined = function(user) {
       var user_model;
       user_model = __Model.User.findBy("name", HAN.DEFAULT_NAME);
+      console.log(user_model);
       if (user_model != null) {
         user_model.destroy();
       }
-      this._createUserModel(user);
-      return console.log(user, "USERJOINED");
+      return this._createUserModel(user);
     };
 
     SocketCtrl.prototype._createUserModel = function(username) {
