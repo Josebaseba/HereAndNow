@@ -1,9 +1,9 @@
-[data-control=chat]{top:0;bottom:0;height:100%;}
-[data-control=chat] > header{width:100%;position:fixed}
-[data-control=chat] > article#message-list div{height:80%;padding-top:1em;padding-bottom:4em;}
-[data-control=chat] > article#message-list div > ul > li{list-style:none}
+[data-control=chat]{top:0;bottom:0;}
+[data-control=chat] > header{width:100%}
+[data-control=chat] > article div > ul > li{list-style:none}
+[data-control=chat] > article div[data-control=users]{position:fixed}
 [data-control=chat] textarea{height:54px;resize:none}
-[data-control=chat] footer{background-color:#d8d8d8;position:fixed;bottom:0;z-index:10;width:100%;padding-bottom:2em}
+[data-control=chat] footer{background-color:#d8d8d8;bottom:0;z-index:10;width:100%;padding-bottom:2em}
 
 body{background-color:#d8d8d8}
 section.landing-margin{padding-top:2em !important;padding-bottom:2em !important}
