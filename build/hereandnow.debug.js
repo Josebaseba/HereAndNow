@@ -368,16 +368,16 @@
 
     SocketCtrl.prototype.send = function(message) {
       if (USERNAME != null) {
-        return this.socket.emit("message", message);
+        this.socket.emit("message", message);
+        return $("html, body").animate({
+          scrollTop: $(document).height()
+        });
       }
     };
 
     SocketCtrl.prototype.onMessage = function(message) {
       if (message != null) {
-        this._createMessageModel(message);
-        return $("html, body").animate({
-          scrollTop: $(document).height()
-        });
+        return this._createMessageModel(message);
       }
     };
 
