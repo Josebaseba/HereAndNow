@@ -23,9 +23,7 @@ class SocketCtrl extends Monocle.Controller
     @socket.emit "setName", USERNAME
 
   send: (message) ->
-    if USERNAME?
-      @socket.emit "message", message
-      $("html, body").animate scrollTop: $(document).height()
+    if USERNAME? then @socket.emit "message", message
 
   #EVENTS
   onMessage: (message) =>

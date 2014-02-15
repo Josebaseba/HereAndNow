@@ -6,8 +6,8 @@ class ChatCtrl extends Monocle.Controller
     "input#username"           : "username"
 
   events:
-    "keydown textarea#message" : "onKeyUpMessage"
-    "keydown input#username"   : "onKeyUpUsername"
+    "keypress textarea#message" : "onKeyPressMessage"
+    "keypress input#username"   : "onKeyPressUsername"
 
   constructor: ->
     super
@@ -17,15 +17,16 @@ class ChatCtrl extends Monocle.Controller
   sendMessage: ->
     if @message.val().trim() isnt ""
       __Controller.Socket.send @message.val().trim()
-      @message.val ""
-      @_resizeInput false
+      do @_resetTextarea
 
   #Events
-  onKeyUpMessage: (event) ->
+  onKeyPressMessage: (event) ->
     if @message.val().length > 60 then do @_resizeInput
-    if event.keyCode is 13 then do @sendMessage
+    if event.keyCode is 13
+      do event.preventDefault
+      do @sendMessage
 
-  onKeyUpUsername: (event) ->
+  onKeyPressUsername: (event) ->
     if event.keyCode is 13
       username = HAN.parseName @username.val().trim()
       if username isnt "" and username.length <= 25 and username isnt HAN.DEFAULT_NAME and @_isValidUsername username
@@ -34,6 +35,11 @@ class ChatCtrl extends Monocle.Controller
   #Private Methods
   _roomName: ->
     location.pathname.slice(1).toLowerCase()
+
+  _resetTextarea: ->
+    @message.val ""
+    @_resizeInput false
+    $("html, body").animate scrollTop: $(document).height()
 
   _isValidUsername: (name) ->
     user = __Model.User.findBy "name", name

@@ -195,8 +195,8 @@
     };
 
     ChatCtrl.prototype.events = {
-      "keydown textarea#message": "onKeyUpMessage",
-      "keydown input#username": "onKeyUpUsername"
+      "keypress textarea#message": "onKeyPressMessage",
+      "keypress input#username": "onKeyPressUsername"
     };
 
     function ChatCtrl() {
@@ -208,21 +208,21 @@
     ChatCtrl.prototype.sendMessage = function() {
       if (this.message.val().trim() !== "") {
         __Controller.Socket.send(this.message.val().trim());
-        this.message.val("");
-        return this._resizeInput(false);
+        return this._resetTextarea();
       }
     };
 
-    ChatCtrl.prototype.onKeyUpMessage = function(event) {
+    ChatCtrl.prototype.onKeyPressMessage = function(event) {
       if (this.message.val().length > 60) {
         this._resizeInput();
       }
       if (event.keyCode === 13) {
+        event.preventDefault();
         return this.sendMessage();
       }
     };
 
-    ChatCtrl.prototype.onKeyUpUsername = function(event) {
+    ChatCtrl.prototype.onKeyPressUsername = function(event) {
       var username;
       if (event.keyCode === 13) {
         username = HAN.parseName(this.username.val().trim());
@@ -234,6 +234,14 @@
 
     ChatCtrl.prototype._roomName = function() {
       return location.pathname.slice(1).toLowerCase();
+    };
+
+    ChatCtrl.prototype._resetTextarea = function() {
+      this.message.val("");
+      this._resizeInput(false);
+      return $("html, body").animate({
+        scrollTop: $(document).height()
+      });
     };
 
     ChatCtrl.prototype._isValidUsername = function(name) {
@@ -368,10 +376,7 @@
 
     SocketCtrl.prototype.send = function(message) {
       if (USERNAME != null) {
-        this.socket.emit("message", message);
-        return $("html, body").animate({
-          scrollTop: $(document).height()
-        });
+        return this.socket.emit("message", message);
       }
     };
 
