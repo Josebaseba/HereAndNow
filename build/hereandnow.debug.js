@@ -429,7 +429,6 @@
     SocketCtrl.prototype.onNewUserJoined = function(user) {
       var user_model;
       user_model = __Model.User.findBy("name", HAN.DEFAULT_NAME);
-      console.log(user_model);
       if (user_model != null) {
         user_model.destroy();
       }

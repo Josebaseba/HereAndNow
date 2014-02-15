@@ -51,7 +51,6 @@ class SocketCtrl extends Monocle.Controller
 
   onNewUserJoined: (user) =>
     user_model = __Model.User.findBy "name", HAN.DEFAULT_NAME
-    console.log user_model
     if user_model? then do user_model.destroy
     @_createUserModel user
 

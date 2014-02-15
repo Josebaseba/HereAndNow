@@ -1,9 +1,9 @@
 class ChatCtrl extends Monocle.Controller
 
   elements:
-    "header h2#chat-name"      : "chat_name"
-    "textarea#message"         : "message"
-    "input#username"           : "username"
+    "header h2#chat-name"       : "chat_name"
+    "textarea#message"          : "message"
+    "input#username"            : "username"
 
   events:
     "keypress textarea#message" : "onKeyPressMessage"
