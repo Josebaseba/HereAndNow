@@ -9,7 +9,7 @@ DEFAULT_NAME = "GUEST"
 _connections = {}
 
 module.exports = (server) ->
-  io = socketio.listen(server).of("/socket")
+  io = socketio.listen(server, log: false).of("/socket")
 
   io.on "connection", (client) =>
     client.on "connectToRoom", (room_name) ->
