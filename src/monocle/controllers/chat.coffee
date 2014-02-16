@@ -43,7 +43,6 @@ class ChatCtrl extends Monocle.Controller
   _resetTextArea: ->
     @message.val ""
     @_resizeTextArea false
-    $("html, body").animate scrollTop: $(document).height()
 
   _prepareMessageTextArea: ->
     do @username.hide

@@ -248,10 +248,7 @@
 
     ChatCtrl.prototype._resetTextArea = function() {
       this.message.val("");
-      this._resizeTextArea(false);
-      return $("html, body").animate({
-        scrollTop: $(document).height()
-      });
+      return this._resizeTextArea(false);
     };
 
     ChatCtrl.prototype._prepareMessageTextArea = function() {
@@ -382,7 +379,8 @@
 
     SocketCtrl.prototype.onMessage = function(message) {
       if (message != null) {
-        return this._createMessageModel(message);
+        this._createMessageModel(message);
+        return this._doScroll();
       }
     };
 
@@ -433,6 +431,16 @@
         user_model.destroy();
       }
       return this._createUserModel(user);
+    };
+
+    SocketCtrl.prototype._doScroll = function() {
+      var doc_height;
+      doc_height = $(document).height();
+      if ($(window).scrollTop() > (doc_height - $(window).height() - 250)) {
+        return $("html, body").animate({
+          scrollTop: doc_height
+        });
+      }
     };
 
     SocketCtrl.prototype._createUserModel = function(username) {

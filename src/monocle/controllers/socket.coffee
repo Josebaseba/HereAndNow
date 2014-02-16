@@ -29,6 +29,7 @@ class SocketCtrl extends Monocle.Controller
   onMessage: (message) =>
     if message?
       @_createMessageModel message
+      do @_doScroll
 
   onError: (error) =>
     console.error error, "ERROR"
@@ -55,6 +56,11 @@ class SocketCtrl extends Monocle.Controller
     @_createUserModel user
 
   #PRIVATE METHODS
+  _doScroll: ->
+    doc_height = $(document).height()
+    if $(window).scrollTop() > (doc_height - $(window).height() - 250)
+      $("html, body").animate scrollTop: doc_height
+
   _createUserModel: (username) ->
     user = name: username, color: _randomColor()
     new __View.User model: __Model.User.create user
