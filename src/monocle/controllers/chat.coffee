@@ -12,16 +12,16 @@ class ChatCtrl extends Monocle.Controller
   constructor: ->
     super
     @chat_name.text do @_roomName
-    @prepareMessageInput = @_prepareMessageInput
+    @prepareMessageTextArea = @_prepareMessageTextArea
 
   sendMessage: ->
     if @message.val().trim() isnt ""
       __Controller.Socket.send @message.val().trim()
-      do @_resetTextarea
+      do @_resetTextArea
 
   #Events
   onKeyPressMessage: (event) ->
-    if @message.val().length > 60 then do @_resizeInput
+    if @message.val().length > 60 then do @_resizeTextArea
     if event.keyCode is 13
       do event.preventDefault
       do @sendMessage
@@ -36,21 +36,21 @@ class ChatCtrl extends Monocle.Controller
   _roomName: ->
     location.pathname.slice(1).toLowerCase()
 
-  _resetTextarea: ->
-    @message.val ""
-    @_resizeInput false
-    $("html, body").animate scrollTop: $(document).height()
-
   _isValidUsername: (name) ->
     user = __Model.User.findBy "name", name
     unless user? then true else false
 
-  _prepareMessageInput: ->
+  _resetTextArea: ->
+    @message.val ""
+    @_resizeTextArea false
+    $("html, body").animate scrollTop: $(document).height()
+
+  _prepareMessageTextArea: ->
     do @username.hide
     do @message.show
     do @message.focus
 
-  _resizeInput: (bigger = true) ->
+  _resizeTextArea: (bigger = true) ->
     if bigger
       @message.css "height", "100px"
     else

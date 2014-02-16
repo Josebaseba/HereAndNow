@@ -40,7 +40,7 @@ class SocketCtrl extends Monocle.Controller
     $("html, body").animate scrollTop: $(document).height(), 1000
 
   onNameChanged: (username) ->
-    do __Controller.Chat.prepareMessageInput
+    do __Controller.Chat.prepareMessageTextArea
 
   onUserDisconnection: (user) =>
     user_model = __Model.User.findBy "name", user

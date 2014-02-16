@@ -16,7 +16,9 @@
     };
     REG_EXP = {
       LINK: /([^"']|^)(ftp|http|https):\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/gi,
-      NAME: /[^a-z0-9]/gi
+      NAME: /[^a-z0-9]/gi,
+      YOUTUBE: /([^"']|^)(http|https):\/\/(www\.youtube\.com\/|youtu\.be\/)[\w=&\?]+/gi,
+      VIMEO: /([^"']|^)(http|https):\/\/(www\.vimeo\.com\/|vimeo\.com\/)[\w=&\?]+/gi
     };
     DEFAULT_COLOR = "#81DAF5";
     _parseName = function(room_name) {
@@ -24,15 +26,13 @@
     };
     _parseMessages = function(text) {
       text = text.replace(REG_EXP.LINK, function(url) {
-        var extension, id, idExpregYouTube, vimeoExpreg, youtubeExpreg, _ref;
+        var extension, id, idExpregYouTube, _ref;
         url = url.trim().replace(/\s/g, '');
-        youtubeExpreg = /([^"']|^)(http|https):\/\/(www\.youtube\.com\/|youtu\.be\/)[\w=&\?]+/gi;
-        vimeoExpreg = /([^"']|^)(http|https):\/\/(www\.vimeo\.com\/|vimeo\.com\/)[\w=&\?]+/gi;
-        if (youtubeExpreg.test(url)) {
+        if (REG_EXP.YOUTUBE.test(url)) {
           idExpregYouTube = /^.*(youtu.be\/|v\/|embed\/|watch\?|youtube.com\/user\/[^#]*#([^\/]*?\/)*)\??v?=?([^#\&\?]*).*/;
           id = url.match(idExpregYouTube);
           return "<iframe width=\"" + IMG.SIZE.WIDTH + "\" height=\"" + IMG.SIZE.HEIGHT + "\" src=\"//www.youtube.com/embed/" + id[3] + "\" frameborder=\"0\" allowfullscreen></iframe>";
-        } else if (vimeoExpreg.test(url)) {
+        } else if (REG_EXP.VIMEO.test(url)) {
           return "<iframe src=\"//player.vimeo.com/video/" + (url.split("/")[3]) + "\" width=\"" + IMG.SIZE.WIDTH + "\" height=\"" + IMG.SIZE.HEIGHT + "\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
         } else {
           extension = url.split(".").pop();
@@ -202,19 +202,19 @@
     function ChatCtrl() {
       ChatCtrl.__super__.constructor.apply(this, arguments);
       this.chat_name.text(this._roomName());
-      this.prepareMessageInput = this._prepareMessageInput;
+      this.prepareMessageTextArea = this._prepareMessageTextArea;
     }
 
     ChatCtrl.prototype.sendMessage = function() {
       if (this.message.val().trim() !== "") {
         __Controller.Socket.send(this.message.val().trim());
-        return this._resetTextarea();
+        return this._resetTextArea();
       }
     };
 
     ChatCtrl.prototype.onKeyPressMessage = function(event) {
       if (this.message.val().length > 60) {
-        this._resizeInput();
+        this._resizeTextArea();
       }
       if (event.keyCode === 13) {
         event.preventDefault();
@@ -236,14 +236,6 @@
       return location.pathname.slice(1).toLowerCase();
     };
 
-    ChatCtrl.prototype._resetTextarea = function() {
-      this.message.val("");
-      this._resizeInput(false);
-      return $("html, body").animate({
-        scrollTop: $(document).height()
-      });
-    };
-
     ChatCtrl.prototype._isValidUsername = function(name) {
       var user;
       user = __Model.User.findBy("name", name);
@@ -254,13 +246,21 @@
       }
     };
 
-    ChatCtrl.prototype._prepareMessageInput = function() {
+    ChatCtrl.prototype._resetTextArea = function() {
+      this.message.val("");
+      this._resizeTextArea(false);
+      return $("html, body").animate({
+        scrollTop: $(document).height()
+      });
+    };
+
+    ChatCtrl.prototype._prepareMessageTextArea = function() {
       this.username.hide();
       this.message.show();
       return this.message.focus();
     };
 
-    ChatCtrl.prototype._resizeInput = function(bigger) {
+    ChatCtrl.prototype._resizeTextArea = function(bigger) {
       if (bigger == null) {
         bigger = true;
       }
@@ -411,7 +411,7 @@
     };
 
     SocketCtrl.prototype.onNameChanged = function(username) {
-      return __Controller.Chat.prepareMessageInput();
+      return __Controller.Chat.prepareMessageTextArea();
     };
 
     SocketCtrl.prototype.onUserDisconnection = function(user) {
